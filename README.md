@@ -1,18 +1,36 @@
 #
-mongodb
 
-docker pull mongo
+## docker network setup
+
 docker network rm db-net
 docker network create db-net
-docker run --name db -p 27017:27017 --network=db-net -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=ckdgusmongodb -e MONGO_INITDB_DATABASE=meltcheck -d mongo
+
+##mongodb
+
+docker pull mongo
+docker run --name db -p 27017:27017 --network=db-net -v ~/data:/data/db -e MONGO_INITDB_ROOT_USERNAME=<DB_ADMIN_NAME> -e MONGO_INITDB_ROOT_PASSWORD=<DB_ADMIN_PW> -e MONGO_INITDB_DATABASE=<INIT_DATABASE> -d mongo
+
+### mongodb auth
+
+docker exec -it db mongo -u <MONGO_INITDB_ROOT_USERNAME> -p <MONGO_INITDB_ROOT_PASSWORD>
+
 use meltcheck
 db.createUser({
-... user:'telegram',
-... pwd:'ckdgusapicall',
+... user:'<ID_FOR_MONGODB_USER>',
+... pwd:'<PASSWORD_FOR_MONGODB_USER>',
 ... roles:['dbOwner']
 ... }
 ... )
-docker exec -it db mongo
+
+use subscriptors
+db.createUser({
+... user:'<ID_FOR_MONGODB_USER>',
+... pwd:'<PASSWORD_FOR_MONGODB_USER>',
+... roles:['dbOwner']
+... }
+... )
+
+
 
 redis 
 

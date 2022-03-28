@@ -1,4 +1,7 @@
-/secrets.py
+/*secrets.py
 /venv/
-/__pycache__
-/.idea
+/__pycache__/*
+/.idea/*
+myscript.sh
+docker_config.py
+config.py

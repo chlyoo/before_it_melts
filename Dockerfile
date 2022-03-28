@@ -18,9 +18,10 @@ RUN cd /home
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
 RUN yum install -y ./google-chrome-stable_current_*.rpm
 COPY before_it_melts_telegram_bot.py /home/before_it_melts_telegram_bot.py
+# main.py, models 패키지 추가 필요
 COPY melt_check.py /home/melt_check.py
 COPY requirements.txt /home/requirements.txt
-COPY docker_secrets.py /home/secrets.py
+COPY docker_config.py /home/config.py
 RUN pip3 install -r /home/requirements.txt
 COPY dockerrun.sh /usr/local/bin/dockerrun.sh
 RUN chmod +x /usr/local/bin/dockerrun.sh

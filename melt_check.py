@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 import time
 import schedule
+import secrets
 
 def init_driver(test=True):
     s = Service(chromedriver_autoinstaller.install())
@@ -15,6 +16,8 @@ def init_driver(test=True):
         return driver
     o = webdriver.ChromeOptions()
     o.add_argument('headless')
+    o.add_argument('--no-sandbox')
+    o.add_argument('--disable-dev-shm-usage')
     driver = webdriver.Chrome(service=s, options=o)
     return driver
 
@@ -58,11 +61,17 @@ def insert_menu_db(collection):
         collection = _get_mongo_db(_get_mongoclient())
     data = parse_menu_data(False)
     data = json.dumps(data)
-    db.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
+    try:
+        db.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
+    except pymongo.errors.ServerSelectionTimeoutError:
+        init_mongo_db()
+        print("initialized")
+        return
     print('synced')
 
 def _get_mongoclient():
-    client = pymongo.MongoClient("localhost", 27017)
+    # client = pymongo.MongoClient("localhost", 27017)
+    client = pymongo.MongoClient(f'mongodb://{secrets.MONGODB_ID}:{secrets.MONGODB_PW}@{secrets.MONGODB_URL}:27017/meltcheck')
     return client
 
 def _get_mongo_db(client):
@@ -71,15 +80,21 @@ def _get_mongo_db(client):
 def init_mongo_db():
     print("initialize mongo db for install")
     client = _get_mongoclient()
-    db = _get_mongo_db(client)
-    db.create_collection('menu')
+    db = client['meltcheck']
+    collection = db['menu']
+    data = parse_menu_data(False)
+    collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
 
 def parse_menu_data(test=True):
-    driver = init_driver(test)
-    notion_element = get_notion_element(driver)
-    menu_elements = get_child_elements(notion_element, By.CLASS_NAME, 'notion-bulleted_list-block')
-    result = get_text_of_list(menu_elements) # 배민 링크 제거
-    driver.close()
+    try:
+        driver = init_driver(test)
+        notion_element = get_notion_element(driver)
+        menu_elements = get_child_elements(notion_element, By.CLASS_NAME, 'notion-bulleted_list-block')
+        result = get_text_of_list(menu_elements) # 배민 링크 제거
+        driver.close()
+    except Exception as e:
+        print(e)
+        return None
     return result[:-1]
 
 if __name__ == '__main__':

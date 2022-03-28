@@ -1,0 +1,5 @@
+TELEGRAM_TOKEN="5188509033:AAEZkUw-VI-0GtZ1gbbYuXfGKFvmMtx3ZYc"
+REDIS_URL="redis://redis:6379"
+MONGODB_ID="telegram"
+MONGODB_PW="ckdgusapicall"
+MONGODB_URL="db"

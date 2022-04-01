@@ -33,7 +33,7 @@ class MongoDB(DBUtilizer):
 
 class Redis(DBUtilizer):
     def __init__(self, URL, PORT=6379, ID=None, PW=None):
-        self.client = redis.from_url(f'redis://{ID}:{PW}@{URL}:{PORT}/{DB}')
+        self.client = redis.from_url(f'redis://{ID}:{PW}@{URL}:{PORT}/')
         if (ID is None) and (PW is None):
             self.client = redis.from_url(f'redis://{URL}:{PORT}')
         self.init_engine()
@@ -42,4 +42,14 @@ class Redis(DBUtilizer):
         # super().set_type(DBType.REDIS)
         self._type = DBType.REDIS
 
+    def get_all_keys(self):
+        return self.client.keys('*')
 
+    def set_key(self,key, value):
+        self.client.set(key, value)
+
+    def get_key(self,key):
+        return self.client.get(key)
+
+    def delete_key(self, key):
+        self.client.delete(key)

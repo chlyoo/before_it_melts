@@ -17,7 +17,7 @@ RUN yum install -y gcc python3.8 wget
 RUN cd /home
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
 RUN yum install -y ./google-chrome-stable_current_*.rpm
-COPY before_it_melts_telegram_bot.py /home/before_it_melts_telegram_bot.py
+COPY telegram_bot.py /home/before_it_melts_telegram_bot.py
 # main.py, models 패키지 추가 필요
 COPY melt_check.py /home/melt_check.py
 COPY requirements.txt /home/requirements.txt

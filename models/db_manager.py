@@ -11,13 +11,13 @@ class DBManager():
     _db = {}
 
     @staticmethod
-    def register_client(u_service:str, db_utilizer):
-        DBManager._db[u_service] = db_utilizer
+    def register_client(service_name:str, db_utilizer):
+        DBManager._db[service_name] = db_utilizer
 
     @staticmethod
     def get_db_map():
         return DBManager._db
 
     @staticmethod
-    def get_db(u_service):
-        return DBManager._db[u_service]
+    def get_db(service_name:str):
+        return DBManager._db[service_name]

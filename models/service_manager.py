@@ -1,5 +1,6 @@
 from models.db_manager import DBManager
 
+
 class SingletonType(object):
     def __call__(self, cls, *args, **kwargs):
         try:
@@ -8,13 +9,14 @@ class SingletonType(object):
             cls.__instance = super(SingletonType, cls).__call__(*args, **kwargs)
             return cls.__instance
 
-class ServiceManager():
+
+class ServiceManager:
     __metaclass__ = SingletonType
     _service = {}
     _dbmanager = DBManager()
-    
+
     @staticmethod
-    def register_service(service_name:str, service_instance):
+    def register_service(service_name: str, service_instance):
         ServiceManager._service[service_name] = service_instance
 
     @staticmethod

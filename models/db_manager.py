@@ -6,12 +6,13 @@ class SingletonType(object):
             cls.__instance = super(SingletonType, cls).__call__(*args, **kwargs)
             return cls.__instance
 
-class DBManager():
+
+class DBManager:
     __metaclass__ = SingletonType
     _db = {}
 
     @staticmethod
-    def register_client(service_name:str, db_utilizer):
+    def register_client(service_name: str, db_utilizer):
         DBManager._db[service_name] = db_utilizer
 
     @staticmethod
@@ -19,5 +20,5 @@ class DBManager():
         return DBManager._db
 
     @staticmethod
-    def get_db(service_name:str):
+    def get_db(service_name: str):
         return DBManager._db[service_name]

@@ -35,7 +35,7 @@ class DBType(Enum):
             return "UNKNOWN"
 
 
-class CoreDBModel():
+class CoreDBModel:
     def __init__(self, _client, _name, _type):
         # Model Type
         self._type = _type

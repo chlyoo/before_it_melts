@@ -9,24 +9,23 @@ from datetime import datetime
 
 class MeltCheck():
     def __init__(self, dbu, debug):
-        self.driver = None
-        self.debug = debug
-        self.init_driver_option()
-        self.init_driver(debug)
-        self.notion_element = None
-        self.menu_elements = None
-        self.inter_result = None
-        self.menu_data = self.parse_menu_data()
         self.dbu = dbu
         self.db = self.dbu.get_db()
         self.collection = self.dbu.get_collection()
+        self.debug = debug
         self.service = None
         self.option = None
-        self.insert_menu_db()
+        self.driver = None
+        self.init_driver_option()
+        self.notion_element = None
+        self.menu_elements = None
+        self.inter_result = None
+        self.menu_data = self._parse_menu_data()
+        self._insert_menu_to_db()
 
     def init_driver_option(self, debug=False):
         self.service = Service(chromedriver_autoinstaller.install())
-        if debug:
+        if self.debug:
             self.driver = webdriver.Chrome(service=s)
             return
         self.option = webdriver.ChromeOptions()
@@ -42,13 +41,13 @@ class MeltCheck():
         self.collection.insert_one({"menu": self.menu_data, "date": datetime.now().strftime('%y%m%d %HH')})
 
     def sync(self):
-        data = self.parse_menu_data()
-        self.insert_menu_db()
+        self.menu_data = self._parse_menu_data()
+        self._insert_menu_to_db()
 
-    def parse_menu_data(self):
+    def _parse_menu_data(self):
         try:
             self.init_driver()
-            notion_element = self.get_notion_element()
+            notion_element = self._get_notion_element()
             if self.notion_element == notion_element:
                 if self.menu_data is not None:
                     return self.menu_data
@@ -64,10 +63,9 @@ class MeltCheck():
         except Exception as e:
             print(e)
             return None
-        self.menu_data = inter_result[:-1]
         return inter_result[:-1]
 
-    def get_notion_element(self):
+    def _get_notion_element(self):
         url = 'https://beforeitmelts.notion.site/beforeitmelts/b261c537bf9a4fa79a94c3b8a79fa573'
         self.driver.get(url)
         self.driver.switch_to.parent_frame()
@@ -84,7 +82,7 @@ class MeltCheck():
     def get_text_of_list(source: webdriver.remote.webelement.WebElement):
         return list(map(lambda x: x.text, source))
 
-    def insert_menu_db(self):
+    def _insert_menu_to_db(self):
         data = json.dumps(self.menu_data)
         try:
             self.collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
@@ -94,7 +92,7 @@ class MeltCheck():
             return
         print('synced')
 
-    def get_menu_from_db(self):
+    def _get_menu_from_db(self):
         data = self.collection.find_one({"date": datetime.now().strftime('%y%m%d %HH')},
                                         sort=[('date', pymongo.DESCENDING)])
         data = data['menu']
@@ -103,12 +101,15 @@ class MeltCheck():
         except json.decoder.JSONDecodeError:
             print('Invalid Data')
             return None
+        print(data)
         return data
 
-    def get_menu_data(self):
-        db_data = self.get_menu_from_db()
-        self.set_menu_data(db_data)
+    def _get_instance_menu(self) -> list:
         return self.menu_data
 
-    def set_menu_data(self, input_data):
+    def _set_instance_menu(self, input_data):
         self.menu_data = input_data
+
+    def request_data(self):
+        self.menu = self._get_menu_from_db()
+        return self.menu

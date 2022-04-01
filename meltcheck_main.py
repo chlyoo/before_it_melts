@@ -27,7 +27,7 @@ meltcheck_svc = MeltCheck(meltcheck_mongo, config.DEBUG)
 subscription_svc = SubsCheck(subscript_mongo, config.DEBUG)
 
 if __name__ == '__main__':
-    schedule.every(10).minutes.do(meltcheck_svc.get_menu_data)
+    schedule.every(10).minutes.do(meltcheck_svc._get_instance_menu)
     while True:
         schedule.run_pending()
         time.sleep(1)

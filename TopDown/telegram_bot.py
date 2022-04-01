@@ -116,7 +116,10 @@ class TelegramBot:
 
     def send_message_to_subscribers(self, context: CallbackContext, message):
         for keys in self.dbu.get_all_keys():
-            self.logger.info(f"sending message to {keys.decode('UTF-8')}")
+            key_id = keys.decode('UTF-8')
+            if key_id.startswith("backup"):
+                continue
+            self.logger.info(f"sending message to {key_id}")
             try:
                 id = self.dbu.get_key(keys).decode("UTF-8")
                 context.bot.send_message(chat_id=id, text=message)

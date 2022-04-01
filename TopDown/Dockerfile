@@ -27,4 +27,4 @@ RUN pip3 install -r /home/requirements.txt
 COPY dockerrun.sh /usr/local/bin/dockerrun.sh
 RUN chmod +x /usr/local/bin/dockerrun.sh
 RUN ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
-#CMD ["dockerrun.sh"]
+CMD ["dockerrun.sh"]

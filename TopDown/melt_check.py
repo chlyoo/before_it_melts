@@ -23,17 +23,17 @@ class MeltCheck():
         self.menu_data = self._parse_menu_data()
         self._insert_menu_to_db()
 
-    def init_driver_option(self, debug=False):
+    def init_driver_option(self):
         self.service = Service(chromedriver_autoinstaller.install())
-        if self.debug:
-            self.driver = webdriver.Chrome(service=s)
-            return
         self.option = webdriver.ChromeOptions()
         self.option.add_argument('headless')
         self.option.add_argument('--no-sandbox')
         self.option.add_argument('--disable-dev-shm-usage')
 
     def init_driver(self, debug=False):
+        if self.debug:
+            self.driver = webdriver.Chrome(service=self.service)
+            return
         self.driver = webdriver.Chrome(service=self.service, options=self.option)
 
     def init_mongo_db(self):

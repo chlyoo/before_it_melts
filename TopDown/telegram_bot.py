@@ -84,9 +84,11 @@ class TelegramBot:
 
     def morning(self, context: CallbackContext):
         message = "좋은 아침입니다. 좋은 하루 보내세요"
-        for keys in self.dbu.get_all_keys():
-            id = self.dbu.get_key(keys).decode("UTF-8")
-            context.bot.send_message(chat_id=id, text=message)
+        self.send_message_to_subscribers(message)
+
+    def goodjob(self, context: CallbackContext):
+        message = "오늘 하루도 고생했어요~♥"
+        self.send_message_to_subscribers(message)
 
     def get_menudata(self):
         menu = self.service['meltcheck_mongo'].request_data()
@@ -128,15 +130,20 @@ class TelegramBot:
                 self.logger.warning(str(e))
                 continue
 
-    def notice(self, context: CallbackContext):
+    def notice(self, context: CallbackContext, custom_message=None):
+        message = self.get_notice_message()
         if datetime.datetime.now(tz=TelegramBot.tz).weekday() == 1:
             message = self.get_holiday_message()
-        message = self.get_notice_message()
+        self.logger.info(context)
+        self.logger.info(context.__dict__.keys())
+        self.logger.info(context.__dict__.items())
+        if custom_message:
+            message = custom_message
         self.send_message_to_subscribers(context, message)
 
     # notice debug
     def call_notice(self, update, context):
-        self.notice(context)
+        self.notice(context ,custom_message="공지 테스트")
 
     def cronjob(self, context: CallbackContext):
         self.service['meltcheck_mongo'].sync()
@@ -157,9 +164,14 @@ class TelegramBot:
         # datetime.timedelta(minutes=30), first=datetime.timedelta(minutes=0), context=updater.)
         jq.run_daily(self.morning, days=(0, 1, 2, 3, 4, 5, 6),
                      time=datetime.time(hour=8, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
-        jq.run_daily(self.notice, days=(0, 1, 2, 3, 4, 5, 6),
-                     time=datetime.time(hour=13, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
 
+        jq.run_daily(self.goodjob, days=(0, 1, 2, 3, 4),
+                     time=datetime.time(hour=17, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
+
+        jq.run_daily(self.notice, days=(0, 1, 2, 3, 4, 5, 6),
+                     time=datetime.time(hour=19, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
+        jq.run_daily(self.notice, days=(0, 1, 2, 3, 4, 5, 6),
+                     time=datetime.time(hour=14, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
         # on different commands - answer in Telegram
         dp.add_handler(CommandHandler("start", self.start))
         dp.add_handler(CommandHandler("help", self.help))
@@ -168,7 +180,8 @@ class TelegramBot:
         dp.add_handler(CommandHandler("deregister", self.deregister_chat))
 
         # notice debug
-        dp.add_handler(CommandHandler("notice", self.call_notice))
+        if config.DEBUG:
+            dp.add_handler(CommandHandler("notice", self.call_notice))
         # on noncommand i.e message - echo the message on Telegram
         # dp.add_handler(MessageHandler(Filters.text, echo))
         # log all errors
@@ -189,7 +202,7 @@ if __name__ == '__main__':
     subscript_redis = Redis(config.REDIS_URL, config.REDIS_PORT)
 
     # Service setup
-    meltcheck_svc = MeltCheck(meltcheck_mongo, False)
+    meltcheck_svc = MeltCheck(meltcheck_mongo, config.DEBUG)
 
     #bot setup
     bot = TelegramBot(subscript_redis, config.DEBUG)

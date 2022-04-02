@@ -107,7 +107,7 @@ class TelegramBot:
         if raw_menu:
             menu = raw_menu
         menu_str = "\n".join(menu)
-        message = "[메뉴공지]\n" + menu_str
+        message = "[메뉴공지]\n" + menu_str +"\n 알림 해제를 원하시면 /deregister 를 입력해주세요"
         return message
 
     def get_holiday_message(self, custom_message=None):
@@ -168,10 +168,9 @@ class TelegramBot:
         jq.run_daily(self.goodjob, days=(0, 1, 2, 3, 4),
                      time=datetime.time(hour=17, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
 
+        #jq.run_daily(self.notice, days=(0, 1, 2, 3, 4, 5, 6),time=datetime.time(hour=16, minute=10, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
         jq.run_daily(self.notice, days=(0, 1, 2, 3, 4, 5, 6),
-                     time=datetime.time(hour=19, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
-        jq.run_daily(self.notice, days=(0, 1, 2, 3, 4, 5, 6),
-                     time=datetime.time(hour=14, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
+                     time=datetime.time(hour=13, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))
         # on different commands - answer in Telegram
         dp.add_handler(CommandHandler("start", self.start))
         dp.add_handler(CommandHandler("help", self.help))
@@ -199,7 +198,7 @@ if __name__ == '__main__':
     # Database Setup
     meltcheck_mongo = MongoDB(config.MONGODB_URL, 'meltcheck', 27017, config.MONGODB_ID, config.MONGODB_PW)
     meltcheck_mongo.set_collection('menu')
-    subscript_redis = Redis(config.REDIS_URL, config.REDIS_PORT)
+    subscript_redis = Redis(config.REDIS_URL, config.REDIS_PORT, config.REDIS_ID,  config.REDIS_PW)
 
     # Service setup
     meltcheck_svc = MeltCheck(meltcheck_mongo, config.DEBUG)

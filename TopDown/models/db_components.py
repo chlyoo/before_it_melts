@@ -32,8 +32,8 @@ class MongoDB(DBUtilizer):
 
 
 class Redis(DBUtilizer):
-    def __init__(self, URL, PORT=6379, ID=None, PW=None):
-        self.client = redis.from_url(f'redis://{ID}:{PW}@{URL}:{PORT}/')
+    def __init__(self, URL, PORT=6379, ID="Admin", PW=None, DB=0):
+        self.client = redis.from_url(f'redis://{ID}:{PW}@{URL}:{PORT}/{DB}')
         if (ID is None) and (PW is None):
             self.client = redis.from_url(f'redis://{URL}:{PORT}')
         self.init_engine()

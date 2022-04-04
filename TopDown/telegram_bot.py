@@ -84,11 +84,11 @@ class TelegramBot:
 
     def morning(self, context: CallbackContext):
         message = "좋은 아침입니다. 좋은 하루 보내세요"
-        self.send_message_to_subscribers(message)
+        self.send_message_to_subscribers(context, message)
 
     def goodjob(self, context: CallbackContext):
         message = "오늘 하루도 고생했어요~♥"
-        self.send_message_to_subscribers(message)
+        self.send_message_to_subscribers(context, message)
 
     def get_menudata(self):
         menu = self.service['meltcheck_mongo'].request_data()

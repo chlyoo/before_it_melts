@@ -24,7 +24,7 @@ docker network create db-net
 ``` shell
 docker pull mongo
 docker volume create --name=mongodata
-docker run --restart unless-stopped --name db -p 27017:27017 --network=db-net -v mongodata:/data/db -e MONGO_INITDB_ROOT_USERNAME=<DB_ADMIN_NAME> -e MONGO_INITDB_ROOT_PASSWORD=<DB_ADMIN_PW> -e MONGO_INITDB_DATABASE=<INIT_DATABASE> --entry-point=mongosh -d mongo
+docker run --restart always --name db -p 27017:27017 --network=db-net -v mongodata:/data/db -e MONGO_INITDB_ROOT_USERNAME=<DB_ADMIN_NAME> -e MONGO_INITDB_ROOT_PASSWORD=<DB_ADMIN_PW> -e MONGO_INITDB_DATABASE=<INIT_DATABASE> --entry-point=mongosh -d mongo
 ```
 ##### Basic Authentication setup
 

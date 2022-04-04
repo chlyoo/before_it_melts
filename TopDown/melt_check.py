@@ -83,13 +83,17 @@ class MeltCheck():
         return list(map(lambda x: x.text, source))
 
     def _insert_menu_to_db(self):
-        data = json.dumps(self.menu_data)
+        data = None
         try:
+            data = json.dumps(self.menu_data)
             self.collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
         except pymongo.errors.ServerSelectionTimeoutError:
             self.init_mongo_db()
             print("initialized")
             return
+        except json.JSONDecodeError:
+            data = json.dumps(self._parse_menu_data)
+            self.collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
         print('synced')
 
     def _get_menu_from_db(self):
@@ -113,3 +117,10 @@ class MeltCheck():
     def request_data(self):
         self.menu = self._get_menu_from_db()
         return self.menu
+
+if __name__ == '__main__':
+    import config
+    from models.db_components import MongoDB
+    meltcheck_mongo = MongoDB(config.MONGODB_URL, 'meltcheck', 27017, config.MONGODB_ID, config.MONGODB_PW)
+    meltcheck_mongo.set_collection('menu')
+    mc = MeltCheck(meltcheck_mongo, config.DEBUG)

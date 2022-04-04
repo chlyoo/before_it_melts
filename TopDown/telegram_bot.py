@@ -160,7 +160,7 @@ class TelegramBot:
         dp = updater.dispatcher
         jq = updater.job_queue
         # daily scheduled tasks
-        jq.run_repeating(self.cronjob, interval=1800)
+        jq.run_repeating(self.cronjob, interval=1800, first=30)
         # datetime.timedelta(minutes=30), first=datetime.timedelta(minutes=0), context=updater.)
         jq.run_daily(self.morning, days=(0, 1, 2, 3, 4, 5, 6),
                      time=datetime.time(hour=8, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))

@@ -7,7 +7,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, ContextTypes
 from melt_check import MeltCheck
 from models.db_components import MongoDB, Redis
 import config
-import functools
+
 
 class TelegramBot():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

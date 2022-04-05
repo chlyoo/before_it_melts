@@ -1,4 +1,5 @@
 import datetime
+from logger import Formatter
 import logging
 import pytz
 from telegram.ext import Updater, CommandHandler, CallbackContext
@@ -6,12 +7,16 @@ from melt_check import MeltCheck
 from models.db_components import MongoDB, Redis
 import config
 
+
 class TelegramBot:
     # Enable logging
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.INFO)
+    # logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    #                     level=logging.INFO)
     logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler()
     tz = pytz.timezone('Asia/Seoul')
+    handler.setFormatter(Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+    logger.addHandler(handler)
     service = {}
 
     def __init__(self, dbu, debug):
@@ -66,10 +71,9 @@ class TelegramBot:
             update.message.reply_text(f'{user_name} registered')
 
     def menu(self, update, context):
-        self.logger.warning(self.service)
-        # tzinfo=pytz.timezone('Asia/Seoul')
         if datetime.datetime.now(tz=self.tz).weekday() == 1:
             update.message.reply_text(self.get_holiday_message())
+            return
         try:
             update.message.reply_text(self.get_menu_message())
         except Exception as e:
@@ -134,9 +138,6 @@ class TelegramBot:
         message = self.get_notice_message()
         if datetime.datetime.now(tz=TelegramBot.tz).weekday() == 1:
             message = self.get_holiday_message()
-        self.logger.info(context)
-        self.logger.info(context.__dict__.keys())
-        self.logger.info(context.__dict__.items())
         if custom_message:
             message = custom_message
         self.send_message_to_subscribers(context, message)
@@ -202,7 +203,7 @@ if __name__ == '__main__':
 
     # Service setup
     meltcheck_svc = MeltCheck(meltcheck_mongo, config.DEBUG)
-
+    meltcheck_svc.request_data()
     #bot setup
     bot = TelegramBot(subscript_redis, config.DEBUG)
 

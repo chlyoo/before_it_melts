@@ -23,6 +23,7 @@ COPY models /home/models/
 COPY melt_check.py /home/melt_check.py
 COPY requirements.txt /home/requirements.txt
 COPY docker_config.py /home/config.py
+COPY logger.py /home/logger.py
 RUN pip3 install -r /home/requirements.txt
 COPY dockerrun.sh /usr/local/bin/dockerrun.sh
 RUN chmod +x /usr/local/bin/dockerrun.sh

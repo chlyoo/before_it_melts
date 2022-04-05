@@ -2,6 +2,7 @@ import datetime
 import logging
 import pytz
 import telegram
+import random
 from telegram.ext import Updater, CommandHandler, CallbackContext, ContextTypes
 from melt_check import MeltCheck
 from models.db_components import MongoDB, Redis
@@ -108,7 +109,13 @@ class TelegramBot():
         self.send_message_to_subscribers(context, message)
 
     def goodjob(self, context: CallbackContext):
-        message = "오늘 하루도 고생했어요~♥"
+        message_list = ["오늘 하루도 고생했어요~♥",
+                        "수고했어요 :D 푹 쉬어요~",
+                        "사랑해요♥",
+                        "난 늘 응원해!",
+                        "넌 잘하고 있어",
+                        ]
+        message = random.choice(message_list)
         self.send_message_to_subscribers(context, message)
 
     def get_menudata(self):

@@ -9,14 +9,12 @@ import config
 
 
 class TelegramBot:
-    # Enable logging
-    # logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    #                     level=logging.INFO)
     logger = logging.getLogger(__name__)
     handler = logging.StreamHandler()
     tz = pytz.timezone('Asia/Seoul')
     handler.setFormatter(Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
     service = {}
 
     def __init__(self, dbu, debug):

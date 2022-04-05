@@ -1,20 +1,18 @@
 import datetime
-from logger import Formatter
 import logging
 import pytz
-from telegram.ext import Updater, CommandHandler, CallbackContext
+import telegram
+from telegram.ext import Updater, CommandHandler, CallbackContext, ContextTypes
 from melt_check import MeltCheck
 from models.db_components import MongoDB, Redis
 import config
+import functools
 
-
-class TelegramBot:
+class TelegramBot():
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                        level=logging.INFO)
     logger = logging.getLogger(__name__)
-    handler = logging.StreamHandler()
     tz = pytz.timezone('Asia/Seoul')
-    handler.setFormatter(Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
     service = {}
 
     def __init__(self, dbu, debug):
@@ -23,14 +21,39 @@ class TelegramBot:
         self.menu_data = None
         self.service = TelegramBot.service
 
-    # Define a few command handlers. These usually take the two arguments bot and
-    # update. Error handlers also receive the raised TelegramError object in error.
+
+    def _decorator(self, func):
+        def wrapper(*args, **kwargs):
+            try:
+                if args:
+                    if len(args) == 2:
+                        if type(args[0]) is telegram.update.Update:
+                            self.logger.info(
+                            f'UserCall ({func.__name__.upper()}) "CHAT: {args[0].message.chat_id} USER: {args[0].message.from_user.id} NAME: {args[0].message.from_user.name}"')
+                        else:
+                            self.logger.debug(f'SystemCall ({func.__name__.upper()})')
+                    if len(args) == 1:
+                        self.logger.info(f'BotCall ({func.__name__.upper()})')
+                else:
+                    self.logger.debug(f'SystemCall ({func.__name__.upper()})')
+            except Exception as e:
+                self.logger.warning(e)
+            finally:
+                result = func(*args, **kwargs)
+            return result
+        return wrapper
+
+    def __getattribute__(self, item):
+        value = object.__getattribute__(self, item)
+        if callable(value):
+            decorator = object.__getattribute__(self, '_decorator')
+            return decorator(value)
+        return value
 
     def start(self, update, context):
         """Send a message when the command /help is issued."""
         user_id = update.message.from_user.id
         user_name = update.message.from_user.name
-        self.logger.info((user_id, user_name))
         context.bot.send_message(chat_id=update.message.chat_id, text="안녕하세요. 녹기전에 봇입니다. /help 를 눌러서 사용법을 확인하세요")
 
     def help(self, update, context):
@@ -46,11 +69,9 @@ class TelegramBot:
             group_id = update.message.chat_id
             group_name = update.message.chat.title + str(group_id)
             self.dbu.set_key(group_name, group_id)
-            self.logger.info(('register', group_name, group_id))
             update.message.reply_text(f'{update.message.chat.title} group Chatroom has registered!')
         if update.message.chat.type == 'private':
             self.dbu.set_key(user_name, user_id)
-            self.logger.info(('register', user_name, user_id))
             update.message.reply_text(f'{user_name} registered')
 
     def deregister_chat(self, update, context):
@@ -61,11 +82,9 @@ class TelegramBot:
             group_id = update.message.chat_id
             group_name = update.message.chat.title + str(group_id)
             self.dbu.delete_key(group_name)
-            self.logger.info(('deregister', group_name, group_id))
             update.message.reply_text(f'{update.message.chat.title} group Chatroom has unregistered!')
         if update.message.chat.type == 'private':
             self.dbu.delete_key(user_name)
-            TelegramBot.logger.info(('deregister', user_id, user_name))
             update.message.reply_text(f'{user_name} registered')
 
     def menu(self, update, context):
@@ -123,7 +142,6 @@ class TelegramBot:
             key_id = keys.decode('UTF-8')
             if key_id.startswith("backup"):
                 continue
-            self.logger.info(f"sending message to {key_id}")
             try:
                 id = self.dbu.get_key(keys).decode("UTF-8")
                 context.bot.send_message(chat_id=id, text=message)

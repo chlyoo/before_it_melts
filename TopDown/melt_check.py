@@ -69,7 +69,7 @@ class MeltCheck():
         url = 'https://beforeitmelts.notion.site/beforeitmelts/b261c537bf9a4fa79a94c3b8a79fa573'
         self.driver.get(url)
         self.driver.switch_to.parent_frame()
-        self.driver.implicitly_wait(3)
+        self.driver.implicitly_wait(5)
         page_content = self.driver.find_element(By.CLASS_NAME, 'notion-page-content')
         return page_content
 
@@ -94,7 +94,7 @@ class MeltCheck():
         except json.JSONDecodeError:
             data = json.dumps(self._parse_menu_data)
             self.collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
-        print('synced')
+        # print('synced')
 
     def _get_menu_from_db(self):
         data = self.collection.find_one({"date": datetime.now().strftime('%y%m%d %HH')},
@@ -105,7 +105,7 @@ class MeltCheck():
         except json.decoder.JSONDecodeError:
             print('Invalid Data')
             return None
-        print(data)
+        # print(data)
         return data
 
     def _get_instance_menu(self) -> list:

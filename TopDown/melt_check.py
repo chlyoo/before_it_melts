@@ -43,6 +43,7 @@ class MeltCheck():
     def sync(self):
         self.menu_data = self._parse_menu_data()
         self._insert_menu_to_db()
+        return self.menu_data
 
     def _parse_menu_data(self):
         try:
@@ -116,6 +117,8 @@ class MeltCheck():
 
     def request_data(self):
         self.menu = self._get_menu_from_db()
+        if self.menu is None:
+            self.menu = self.sync()
         return self.menu
 
 if __name__ == '__main__':

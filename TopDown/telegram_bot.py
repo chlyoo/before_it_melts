@@ -9,6 +9,7 @@ from models.db_components import MongoDB, Redis
 import config
 
 
+
 class TelegramBot():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)
@@ -120,21 +121,17 @@ class TelegramBot():
 
     def get_menudata(self):
         menu = self.service['meltcheck_mongo'].request_data()
-        if menu == None:
-            self.service['meltcheck_mongo'].sync()
-            return self.service['meltcheck_mongo'].request_data()
         return menu
 
-    def get_menu_message(self, raw_menu=None):
+    def get_menu_message(self, raw_menu:str=None):
         menu = self.get_menudata()
         menu_str = "\n".join(menu)
+        if raw_menu:
+            menu_str = str(raw_menu)
         return menu_str
 
     def get_notice_message(self, raw_menu=None):
-        menu = self.get_menudata()
-        if raw_menu:
-            menu = raw_menu
-        menu_str = "\n".join(menu)
+        menu_str = self.get_menu_message()
         message = "[메뉴공지]\n" + menu_str +"\n 알림 해제를 원하시면 /deregister 를 입력해주세요"
         return message
 

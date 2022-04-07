@@ -3,6 +3,8 @@ import logging
 import pytz
 import telegram
 import random
+
+from apscheduler.triggers.cron import CronTrigger
 from telegram.ext import Updater, CommandHandler, CallbackContext, ContextTypes
 from melt_check import MeltCheck
 from models.db_components import MongoDB, Redis
@@ -181,7 +183,7 @@ class TelegramBot():
         dp = updater.dispatcher
         jq = updater.job_queue
         # daily scheduled tasks
-        jq.run_repeating(self.cronjob, interval=1800, first=30)
+        jq.run_custom(callback=self.cronjob, job_kwargs={"trigger":CronTrigger.from_crontab('*/3 9-22 * * 0,1,3,4,5,6')})
         # datetime.timedelta(minutes=30), first=datetime.timedelta(minutes=0), context=updater.)
         jq.run_daily(self.morning, days=(0, 1, 2, 3, 4, 5, 6),
                      time=datetime.time(hour=8, minute=00, second=00, tzinfo=pytz.timezone('Asia/Seoul')))

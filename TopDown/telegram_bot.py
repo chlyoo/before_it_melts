@@ -73,10 +73,10 @@ class TelegramBot():
             group_id = update.message.chat_id
             group_name = update.message.chat.title + str(group_id)
             self.dbu.set_key(group_name, group_id)
-            update.message.reply_text(f'{update.message.chat.title} group Chatroom has registered!')
+            update.message.reply_text(f'{update.message.chat.title} 채팅방이 등록되었습니다!')
         if update.message.chat.type == 'private':
             self.dbu.set_key(user_name, user_id)
-            update.message.reply_text(f'{user_name} registered')
+            update.message.reply_text(f'{user_name}님이 등록되었습니다.')
 
     def deregister_chat(self, update, context):
         """deregister chatroom for a regular notice"""
@@ -86,14 +86,17 @@ class TelegramBot():
             group_id = update.message.chat_id
             group_name = update.message.chat.title + str(group_id)
             self.dbu.delete_key(group_name)
-            update.message.reply_text(f'{update.message.chat.title} group Chatroom has unregistered!')
+            update.message.reply_text(f'{update.message.chat.title} 채팅방이 등록해제 되었습니다!')
         if update.message.chat.type == 'private':
             self.dbu.delete_key(user_name)
-            update.message.reply_text(f'{user_name} registered')
+            update.message.reply_text(f'{user_name}님 등록해제 되었습니다. ')
 
     def menu(self, update, context):
         if datetime.datetime.now(tz=self.tz).weekday() == 1:
             update.message.reply_text(self.get_holiday_message())
+            return
+        if (datetime.datetime.now(tz=self.tz).hour < 7) or (datetime.datetime.now(tz=self.tz).hour >22):
+            update.message.reply_text(self.get_openhour_message())
             return
         try:
             update.message.reply_text(self.get_menu_message())
@@ -106,7 +109,6 @@ class TelegramBot():
         self.logger.warning('Update "%s" caused error "%s"', update, context.error)
         if hasattr(update, 'message'):
             context.bot.send_message(chat_id=update.message.chat_id, text="에러가 발생했습니다. by error function")
-
     def morning(self, context: CallbackContext):
         message = "좋은 아침입니다. 좋은 하루 보내세요"
         self.send_message_to_subscribers(context, message)
@@ -124,6 +126,10 @@ class TelegramBot():
     def get_menudata(self):
         menu = self.service['meltcheck_mongo'].request_data()
         return menu
+
+    def get_openhour_message(self):
+        menu_str = "영업시간이 아닙니다.\n 12-10pm (일요일-8pm) | 화요일 휴무"
+        return menu_str
 
     def get_menu_message(self, raw_menu:str=None):
         menu = self.get_menudata()

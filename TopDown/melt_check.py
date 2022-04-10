@@ -38,7 +38,7 @@ class MeltCheck():
 
     def init_mongo_db(self):
         print("initialize mongo db for first install")
-        self.collection.insert_one({"menu": self.menu_data, "date": datetime.now().strftime('%y%m%d %HH')})
+        self.collection.insert_one({"menu": self.menu_data, "date": datetime.now().strftime('%y%m%d')})
 
     def sync(self):
         self.menu_data = self._parse_menu_data()
@@ -64,7 +64,7 @@ class MeltCheck():
         except Exception as e:
             print(e)
             return None
-        return inter_result[:-1]
+        return inter_result[:-2]
 
     def _get_notion_element(self):
         url = 'https://beforeitmelts.notion.site/beforeitmelts/b261c537bf9a4fa79a94c3b8a79fa573'
@@ -87,18 +87,18 @@ class MeltCheck():
         data = None
         try:
             data = json.dumps(self.menu_data)
-            self.collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
+            self.collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d')})
         except pymongo.errors.ServerSelectionTimeoutError:
             self.init_mongo_db()
             print("initialized")
             return
         except json.JSONDecodeError:
             data = json.dumps(self._parse_menu_data)
-            self.collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d %HH')})
+            self.collection.insert_one({"menu": data, "date": datetime.now().strftime('%y%m%d')})
         # print('synced')
 
     def _get_menu_from_db(self):
-        data = self.collection.find_one({"date": datetime.now().strftime('%y%m%d %HH')},
+        data = self.collection.find_one({"date": datetime.now().strftime('%y%m%d')},
                                         sort=[('date', pymongo.DESCENDING)])
         data = data['menu']
         try:
